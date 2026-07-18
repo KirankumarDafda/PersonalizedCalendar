@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Personal Calendar — Theme 2</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --pink: #d6247f;
+            --pink-soft: #f6c9e0;
+            --ink: #2a2a2a;
+            --muted: #b51778;
+            --other: #c4c4c4;
+            --card: #ffffff;
+            --paper: #ffffff;
+            --cal-bg: #fafbfc;
+            --grad: linear-gradient(135deg, #d1d5db 0%, #e5e7eb 45%, #4f187a 70%, #a4da0e 100%);
+            --shadow: 0 8px 22px rgba(90, 90, 90, 0.20);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: "Segoe UI", "Quicksand", system-ui, sans-serif;
+            margin: 0;
+            padding: 0 0 40px 0;
+            color: var(--ink);
+            background: var(--paper);
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .app { max-width: 999px; margin: 0 auto; padding: 24px; }
+
+        /* ---------- Toolbar ---------- */
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
+            background: var(--card);
+            border-radius: 18px;
+            padding: 16px 20px;
+            box-shadow: var(--shadow);
+            margin-bottom: 22px;
+        }
+        .toolbar label { font-size: 13px; font-weight: 700; color: var(--muted); }
+        .toolbar select {
+            font: inherit;
+            padding: 9px 12px;
+            border: 2px solid #e6def0;
+            border-radius: 12px;
+            background: #fff;
+            color: var(--ink);
+            outline: none;
+        }
+        .toolbar select:focus { border-color: #9a7fd6; }
+        .spacer { flex: 1 1 auto; }
+        .btn {
+            font: inherit;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            border-radius: 12px;
+            padding: 10px 18px;
+            color: #fff;
+            transition: transform 0.12s, filter 0.12s;
+        }
+        .btn:hover { transform: translateY(-1px); filter: brightness(1.05); }
+        .btn-print { background: linear-gradient(135deg, #a07fe0, #7a6fe0); }
+
+        .range-warning {
+            display: none;
+            margin: 0 auto 18px auto;
+            padding: 10px 16px;
+            border-radius: 12px;
+            background: #ffe9ec;
+            border: 1px solid #ffc0cb;
+            color: #b23a5b;
+            font-size: 13px;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        /* ---------- A4 page (two month blocks each) ---------- */
+        .calendar { display: block; }
+        .page {
+            width: 794px;
+            min-height: 1123px;
+            margin: 0 auto 28px auto;
+            padding: 26px;
+            background: var(--card);
+            border-radius: 14px;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            gap: 26px;
+        }
+
+        /* ---------- One month block (the desk-calendar design) ---------- */
+        .cal-block {
+            flex: 1 1 0;
+            min-height: 0;
+            background: var(--grad);
+            border-radius: 16px;
+            padding: 12px;
+            box-shadow: var(--shadow);
+        }
+        .cal-inner {
+            display: flex;
+            gap: 12px;
+            height: 100%;
+        }
+
+        /* ---------- Left panel: photo + events + quote ---------- */
+        .left-panel {
+            flex: 0 0 39%;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            min-width: 0;
+        }
+        .photo-wrap {
+            position: relative;
+            flex: 1 1 auto;
+            min-height: 0;
+            border-radius: 12px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.35);
+        }
+        .photo-wrap img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .photo-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            font-size: 34px;
+            color: #fff;
+        }
+        .photo-placeholder span { font-size: 12px; font-weight: 700; }
+
+        /* Date listing (celebrations for the month) */
+        .events-card {
+            background: rgba(255, 255, 255, 0.92);
+            border-radius: 10px;
+            padding: 7px 9px;
+            flex: 0 0 auto;
+            max-height: 34%;
+            overflow: hidden;
+        }
+        .events-card h4 {
+            margin: 0 0 4px 0;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            color: var(--pink);
+        }
+        .events-card ul { margin: 0; padding: 0; list-style: none; }
+        .events-card li {
+            font-size: 9px;
+            line-height: 1.3;
+            color: var(--ink);
+            display: flex;
+            gap: 4px;
+            padding: 1px 0;
+        }
+        .events-card li .ev-day {
+            font-weight: 800;
+            color: var(--pink);
+            flex: 0 0 20px;
+            text-align: right;
+        }
+        .events-card li .ev-ico { flex: 0 0 auto; }
+        .events-card li .ev-name { overflow-wrap: anywhere; }
+        .events-card .no-events { font-size: 9px; color: var(--muted); font-style: italic; }
+
+        /* Quote strip */
+        .quote {
+            flex: 0 0 auto;
+            background: rgba(255, 255, 255, 0.85);
+            border-radius: 10px;
+            padding: 6px 10px;
+            font-family: "Dancing Script", cursive;
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 1.2;
+            color: #5a3f7a;
+            text-align: center;
+        }
+
+        /* ---------- Right panel: the calendar itself ---------- */
+        .right-panel {
+            flex: 1 1 auto;
+            min-width: 0;
+            background: var(--cal-bg);
+            border-radius: 12px;
+            padding: 12px 14px;
+            display: flex;
+            flex-direction: column;
+        }
+        .cal-head {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+        .cal-head .month-name {
+            font-family: "Playfair Display", serif;
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--pink);
+        }
+        .cal-head .year {
+            font-family: "Playfair Display", serif;
+            font-size: 26px;
+            font-weight: 700;
+            font-style: italic;
+            color: var(--pink);
+        }
+        .weekdays,
+        .days-grid { display: grid; grid-template-columns: repeat(7, 1fr); }
+        .weekdays {
+            text-align: center;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--muted);
+            padding-bottom: 4px;
+            border-bottom: 1.5px solid #e6e6e6;
+        }
+        .days-grid {
+            flex: 1 1 auto;
+            grid-auto-rows: minmax(0, 1fr);
+        }
+        .day {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--ink);
+            border-right: 1px solid #eee;
+            border-bottom: 1px solid #eee;
+        }
+        .day:nth-child(7n) { border-right: none; }
+        .day.other { color: var(--other); font-weight: 500; }
+        .day.has-event { color: var(--pink); font-weight: 800; }
+        .day .dots {
+            position: absolute;
+            bottom: 4px;
+            display: flex;
+            gap: 2px;
+        }
+        .day .dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            border: 1px solid rgba(0, 0, 0, 0.12);
+        }
+
+        /* ---------- Print: A4 portrait, two blocks per page ---------- */
+        @media print {
+            @page { size: A4 portrait; margin: 5mm; }
+            body { background: #fff; padding: 0; }
+            .no-print { display: none !important; }
+            .app { max-width: none; padding: 0; }
+            * { box-shadow: none !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .page {
+                width: 200mm;
+                min-height: 0;
+                height: 275mm;
+                margin: 10mm 0 8mm 0;
+                padding: 0;
+                border-radius: 0;
+                page-break-after: always;
+                break-inside: avoid;
+                display: grid;
+                grid-template-rows: repeat(2, 1fr);
+                gap: 6mm;
+            }
+            .page:last-child {
+                page-break-after: auto;
+            }
+            .cal-block {
+                break-inside: avoid;
+                min-height: 0;
+                height: calc((275mm - 6mm) / 2);
+                padding: 8mm;
+                border-radius: 10px;
+            }
+            .cal-inner {
+                gap: 6mm;
+            }
+            .left-panel {
+                gap: 6mm;
+            }
+            .events-card {
+                max-height: 42%;
+                padding: 6px 8px;
+            }
+            .quote {
+                padding: 5px 8px;
+                font-size: 12px;
+            }
+            .right-panel {
+                padding: 8px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <!-- Toolbar: date range selection -->
+        <div class="toolbar no-print">
+            <label for="fromMonth">From Month</label>
+            <select id="fromMonth"></select>
+            <label for="fromYear">From Year</label>
+            <select id="fromYear"></select>
+            <label for="toMonth">To Month</label>
+            <select id="toMonth"></select>
+            <label for="toYear">To Year</label>
+            <select id="toYear"></select>
+            <span class="spacer"></span>
+            <button class="btn btn-print" id="printBtn">🖨️ Print PDF</button>
+        </div>
+        <div class="range-warning no-print" id="rangeWarning"></div>
+
+        <!-- Calendar: two month blocks per A4 page -->
+        <main class="calendar" id="calendar"></main>
+    </div>
+
+    <script src="../data/events.js"></script>
+    <script src="../data/quotes.js"></script>
+    <script src="../data/photos.js"></script>
+    <script src="js/planner.js"></script>
+</body>
+</html>

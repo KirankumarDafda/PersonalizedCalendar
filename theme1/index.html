@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Personal Calendar</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --blue: #FFF2B2; /* pale sunshine */
+            --pink: #FFDAB3; /* warm peach */
+            --ink: #2a2a2a; /* soft dark for text */
+            --muted: #7a5a1f; /* warm muted brown */
+            --card: #fffef6; /* warm card background */
+            --paper: #fff8e6; /* creamy paper */
+            --accent: #d97706; /* bright orange accent */
+            --accent2: #ffcc33; /* sunny yellow accent */
+            --shadow: 0 8px 22px rgba(217,138,0,0.12);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: "Segoe UI", "Quicksand", system-ui, sans-serif;
+            margin: 0;
+            padding: 0 0 40px 0;
+            color: var(--ink);
+            background: var(--paper);
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .app { max-width: 1500px; margin: 0 auto; padding: 24px; }
+
+        /* ---------- Toolbar ---------- */
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
+            background: var(--card);
+            border-radius: 18px;
+            padding: 16px 20px;
+            box-shadow: var(--shadow);
+            margin-bottom: 22px;
+        }
+        .toolbar label { font-size: 13px; font-weight: 700; color: var(--muted); }
+        .toolbar select,
+        .toolbar input {
+            font: inherit;
+            padding: 9px 12px;
+            border: 2px solid rgba(255,204,51,0.25);
+            border-radius: 12px;
+            background: #fffef9;
+            color: var(--ink);
+            outline: none;
+        }
+        .toolbar select:focus,
+        .toolbar input:focus { border-color: rgba(217,138,0,0.9); }
+        .toolbar input#search { min-width: 200px; }
+        .spacer { flex: 1 1 auto; }
+        .btn {
+            font: inherit;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            border-radius: 12px;
+            padding: 10px 18px;
+            color: #fff;
+            transition: transform 0.12s, filter 0.12s;
+        }
+        .btn:hover { transform: translateY(-1px); filter: brightness(1.05); }
+        .btn-print { background: linear-gradient(135deg, #ffd54a, #ffb347); }
+        .btn-reset { background: linear-gradient(135deg, #ffd9b3, #ffc07a); }
+
+        /* ---------- Header ---------- */
+        .planner-header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 16px 90px 20px 90px;
+            border-bottom: 2px solid #eee;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+        .planner-header h1 {
+            margin: 0;
+            font-size: 38px;
+            letter-spacing: 0.5px;
+            font-family: cursive;
+            color: #333;
+        }
+        .planner-header p {
+            margin: 8px 0 0 0;
+            font-family: cursive;
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--muted);
+        }
+
+        .notice {
+            display: none;
+            max-width: 900px;
+            margin: 0 auto 18px auto;
+            padding: 10px 16px;
+            border-radius: 12px;
+            background: #fff6da;
+            border: 1px solid #ffe39a;
+            color: #8a6d1f;
+            font-size: 13px;
+            text-align: center;
+        }
+
+        .range-warning {
+            display: none;
+            max-width: 900px;
+            margin: 0 auto 18px auto;
+            padding: 10px 16px;
+            border-radius: 12px;
+            background: #ffe9ec;
+            border: 1px solid #ffc0cb;
+            color: #b23a5b;
+            font-size: 13px;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        /* ---------- Summary ---------- */
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .summary-card {
+            background: var(--card);
+            border-radius: 18px;
+            padding: 18px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            border-top: 5px solid var(--accent2);
+        }
+        .summary-card.birthday { border-top-color: #8ec5ff; }
+        .summary-card.anniversary { border-top-color: #ff9ab5; }
+        .summary-card.total { border-top-color: #b8a4ff; }
+        .summary-card.range { border-top-color: #9fe0c4; }
+        .summary-card .num { font-size: 32px; font-weight: 800; }
+        .summary-card .lbl { font-size: 13px; color: var(--muted); font-weight: 700; margin-top: 4px; }
+
+        /* ---------- Calendar: one month per full-screen page ---------- */
+        .calendar { display: block; }
+
+        /* ---------- Monthly photo (polaroid) ---------- */ 
+        .month-photo { width: 100%; margin: 0 auto 16px auto; padding: 8px 8px 6px 8px; background: #fff; border: 1px solid #eee; border-radius: 8px; box-shadow: var(--shadow); transform: rotate(-1.5deg); } .month-photo img, .photo-placeholder { display: block; width: 100%; height: 150px; object-fit: cover; border-radius: 4px; background: var(--paper); } .photo-placeholder { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 32px; color: var(--muted); border: 1.5px dashed #d9c7d1; } .photo-placeholder span { font-size: 12px; font-weight: 700; } .photo-caption { display: block; margin-top: 6px; text-align: center; font-family: "Dancing Script", "Segoe Script", cursive; font-size: 18px; font-weight: 600; color: var(--muted); }
+
+        /* ---------- Month card = one full-screen page ---------- */
+        .month-card {
+            position: relative;
+            background: var(--card);
+            border-radius: 20px;
+            padding: 22px;
+            box-shadow: var(--shadow);
+            margin-bottom: 28px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .sticker {
+            position: absolute;
+            top: 8px;
+            font-size: 90px;
+            line-height: 1;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .sticker-tl { left: 12px; }
+        .sticker-tr { right: 12px; }
+        .month-footer {
+            margin-top: 12px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--muted);
+        }
+        .month-body { display: flex; gap: 22px; flex: 1 1 auto; }
+        .cal-col { flex: 1 1 auto; display: flex; flex-direction: column; }
+        .month-title {
+            margin: 0 0 12px 0;
+            font-size: 22px;
+            text-align: center;
+            color: var(--accent);
+        }
+        .weekdays,
+        .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+        .grid { flex: 1 1 auto; grid-auto-rows: 110px; }
+        .weekdays {
+            text-align: center;
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--muted);
+            margin-bottom: 6px;
+        }
+        .cell {
+            height: 110px;
+            border: 1.5px solid #d9d9d9;
+            border-radius: 12px;
+            padding: 6px;
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            overflow: hidden;
+        }
+        .cell.empty { background: transparent; border: 1.5px dashed #e5e5e5; }
+        .date-num { font-size: 13px; font-weight: 800; color: var(--ink); }
+        .events { display: flex; flex-direction: column; gap: 3px; overflow: hidden; }
+        .badge {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--ink);
+            border: 1px solid rgba(0, 0, 0, 0.18);
+            border-radius: 12px;
+            padding: 2px 8px;
+            white-space: normal;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+            line-height: 1.2;
+        }
+        .badge span { margin-right: 2px; }
+        .badge-icons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 3px;
+            font-size: 22px;
+            line-height: 1;
+        }
+
+        /* ---------- Sidebar / monthly notes (inside each month page) ---------- */
+        .sidebar {
+            width: 300px;
+            flex: 0 0 300px;
+            background: var(--paper);
+            border: 1.5px solid #f1e3ec;
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar h3 {
+            margin: 0 0 6px 0;
+            font-size: 16px;
+            color: var(--accent);
+            text-align: center;
+            font-family: cursive;
+        }
+        .notes {
+            flex: 1 1 auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding-top: 10px;
+        }
+        .note-line { border-bottom: 1.5px dotted #c9b6cd; height: 1px; }
+
+        /* ---------- Overlapping-date details list ---------- */
+        .overlap-list { margin-bottom: 16px; }
+        .overlap-list h4 {
+            margin: 0 0 8px 0;
+            font-size: 15px;
+            color: var(--accent);
+            text-align: center;
+        }
+        .overlap-item {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--ink);
+            padding: 4px 0;
+            border-bottom: 1px dotted #e0d3da;
+            line-height: 1.35;
+        }
+        .overlap-date { font-weight: 800; color: var(--muted); margin-right: 2px; }
+
+        @media (max-width: 900px) {
+            .summary { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        /* ---------- Print ---------- */
+        @media print {
+            @page { size: A4 landscape; margin: 4mm; }
+            body { background: #fff; padding: 0; }
+            .no-print { display: none !important; }
+            .app { max-width: none; padding: 0; }
+            * { box-shadow: none !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .calendar { display: block; }
+            .month-card {
+                break-inside: avoid;
+                page-break-inside: avoid;
+                page-break-after: always;
+                min-height: 0;
+                height: calc(100vh - 8mm);
+                margin: 0 0 4mm 0;
+                padding: 10px 12px 8px 12px;
+                border: 1px solid #eee;
+            }
+            .month-body { display: flex; gap: 10px; flex: 1 1 auto; }
+            .cal-col { min-width: 0; }
+            .cell { height: auto; min-height: 0; }
+            .grid { grid-auto-rows: minmax(0, 1fr); }
+            .sidebar { break-inside: avoid; width: 220px; flex-basis: 220px; padding: 10px; }
+            .planner-header { margin-bottom: 8px; padding: 8px 70px 10px 70px; min-height: 72px; }
+            .planner-header h1 { font-size: 22px; }
+            .planner-header p { font-size: 16px; }
+            .sticker { font-size: 56px; top: 4px; }
+            .badge { font-size: 9px; padding: 1px 6px; }
+            .month-footer { margin-top: 6px; font-size: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <!-- Toolbar: date range selection -->
+        <div class="toolbar no-print">
+            <label for="fromMonth">From Month</label>
+            <select id="fromMonth"></select>
+            <label for="fromYear">From Year</label>
+            <select id="fromYear"></select>
+            <label for="toMonth">To Month</label>
+            <select id="toMonth"></select>
+            <label for="toYear">To Year</label>
+            <select id="toYear"></select>
+            <span class="spacer"></span>
+            <button class="btn btn-print" id="printBtn">🖨️ Print PDF</button>
+        </div>
+        <div class="range-warning no-print" id="rangeWarning"></div>
+<!-- 
+        <div class="notice no-print" id="notice">
+            ⚠️ Could not load <b>data/events.json</b> (open via a local server to edit it live).
+            Showing the built-in sample data instead. ✨
+        </div> -->
+
+        <!-- Calendar: one month per full-screen page (each page has its own reminder sidebar) -->
+        <main class="calendar" id="calendar"></main>
+    </div>
+
+    <script src="../data/events.js"></script>
+    <script src="../data/quotes.js"></script>
+    <script src="../data/photos.js"></script>
+    <script src="js/planner.js"></script>
+</body>
+</html>

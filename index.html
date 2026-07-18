@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Calendar — Home</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --blue: #D6EEFF;
+            --pink: #FFE4EC;
+            --ink: #222222;
+            --muted: #555555;
+            --card: #ffffff;
+            --paper: #f4f6fb;
+            --accent: #6fb0ff;
+            --accent2: #ff9ab5;
+            --shadow: 0 8px 22px rgba(120, 120, 120, 0.15);
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: "Segoe UI", "Quicksand", system-ui, sans-serif;
+            margin: 0;
+            color: var(--ink);
+            background: var(--paper);
+        }
+        .app { max-width: 1100px; margin: 0 auto; padding: 24px; }
+
+        /* ---------- Hero ---------- */
+        .hero {
+            text-align: center;
+            background: linear-gradient(135deg, #ff9ab5, #8ec5ff);
+            color: #fff;
+            border-radius: 20px;
+            padding: 34px 20px;
+            box-shadow: var(--shadow);
+            margin-bottom: 22px;
+        }
+        .hero h1 { margin: 0; font-size: 40px; }
+        .hero p {
+            margin: 10px 0 0 0;
+            font-family: "Dancing Script", cursive;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        /* ---------- Tabs ---------- */
+        .tabs { display: flex; gap: 10px; justify-content: center; margin-bottom: 22px; }
+        .tab-btn {
+            font: inherit; font-weight: 700; cursor: pointer;
+            border: none; border-radius: 12px; padding: 12px 24px;
+            background: var(--card); color: var(--muted); box-shadow: var(--shadow);
+            transition: transform 0.12s, filter 0.12s;
+        }
+        .tab-btn:hover { transform: translateY(-1px); }
+        .tab-btn.active { background: linear-gradient(135deg, #8ec5ff, #6fb0ff); color: #fff; }
+        .panel { display: none; }
+        .panel.active { display: block; }
+
+        /* ---------- Sub-tabs (inside Manage Data) ---------- */
+        .subtabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 0 0 16px 0; }
+        .subtab-btn {
+            font: inherit; font-weight: 700; cursor: pointer;
+            border: none; border-radius: 10px; padding: 9px 18px;
+            background: #eef0f6; color: var(--muted);
+            transition: transform 0.12s, filter 0.12s;
+        }
+        .subtab-btn:hover { transform: translateY(-1px); }
+        .subtab-btn.active { background: linear-gradient(135deg, #ff9ab5, #ff7fa5); color: #fff; }
+        .subpanel { display: none; }
+        .subpanel.active { display: block; }
+
+        /* ---------- Theme cards ---------- */
+        .theme-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; }
+        .theme-card {
+            background: var(--card); border-radius: 18px; padding: 22px;
+            box-shadow: var(--shadow); border-top: 6px solid var(--accent); display: flex; flex-direction: column;
+        }
+        .theme-card.t2 { border-top-color: var(--accent2); }
+        .theme-card h3 { margin: 0 0 6px 0; font-size: 22px; }
+        .theme-card .desc { color: var(--muted); font-size: 14px; line-height: 1.5; flex: 1 1 auto; }
+        .theme-card .open-btn {
+            display: inline-block; margin-top: 14px; text-align: center; text-decoration: none;
+            font-weight: 700; color: #fff; border-radius: 12px; padding: 11px 18px;
+            background: linear-gradient(135deg, #ff9ab5, #ff7fa5);
+        }
+        .theme-card.t1 .open-btn { background: linear-gradient(135deg, #8ec5ff, #6fb0ff); }
+
+        .intro-card {
+            background: var(--card); border-radius: 18px; padding: 22px;
+            box-shadow: var(--shadow); margin-bottom: 18px;
+        }
+        .intro-card h2 { margin-top: 0; }
+        .intro-card ul { color: var(--muted); line-height: 1.6; }
+
+        /* ---------- Manage Data ---------- */
+        .section-card {
+            background: var(--card); border-radius: 18px; padding: 22px;
+            box-shadow: var(--shadow); margin-bottom: 18px;
+        }
+        .section-card h2 { margin-top: 0; }
+        .section-card .hint { color: var(--muted); font-size: 13px; margin-top: -6px; }
+        .form-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; margin: 14px 0; }
+        .field { display: flex; flex-direction: column; gap: 4px; }
+        .field label { font-size: 12px; font-weight: 700; color: var(--muted); }
+        .field input, .field select {
+            font: inherit; padding: 9px 12px; border: 2px solid #e6e8f0;
+            border-radius: 10px; background: #fff; color: var(--ink); outline: none;
+        }
+        .field input:focus, .field select:focus { border-color: var(--accent); }
+        .field.grow { flex: 1 1 220px; }
+        .field.grow input { width: 100%; }
+
+        .btn {
+            font: inherit; font-weight: 700; cursor: pointer; border: none;
+            border-radius: 10px; padding: 10px 16px; color: #fff;
+            transition: transform 0.12s, filter 0.12s;
+        }
+        .btn:hover { transform: translateY(-1px); filter: brightness(1.05); }
+        .btn-add { background: linear-gradient(135deg, #8ec5ff, #6fb0ff); }
+        .btn-save { background: linear-gradient(135deg, #7fd6a5, #4fc07f); }
+        .btn-reset { background: linear-gradient(135deg, #ffb27f, #ff8f5a); }
+        .btn-ghost { background: #eef0f6; color: var(--muted); }
+        .btn-mini { padding: 6px 10px; font-size: 12px; border-radius: 8px; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+        th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #eef0f6; font-size: 14px; }
+        th { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .swatch { display: inline-block; width: 16px; height: 16px; border-radius: 4px; border: 1px solid #ccc; vertical-align: middle; margin-right: 6px; }
+        .row-actions { display: flex; gap: 6px; }
+
+        .photos-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; margin-top: 10px; }
+        .photo-item { display: flex; flex-direction: column; gap: 4px; }
+        .photo-item label { font-size: 12px; font-weight: 700; color: var(--muted); }
+        .photo-item input {
+            font: inherit; padding: 8px 10px; border: 2px solid #e6e8f0;
+            border-radius: 10px; background: #fff; outline: none;
+        }
+
+        .save-bar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+        .status { font-weight: 700; color: #4fc07f; }
+        .status.warn { color: #b23a5b; }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <header class="hero">
+            <h1>🎉 Personalized Calendar</h1>
+            <p>Pick a theme, or manage your dates, quotes &amp; photos in one place.</p>
+        </header>
+
+        <nav class="tabs">
+            <button class="tab-btn active" data-tab="home">🏠 Home</button>
+            <button class="tab-btn" data-tab="manage">🛠️ Manage Data</button>
+        </nav>
+
+        <!-- ============ HOME PANEL ============ -->
+        <section class="panel active" id="panel-home">
+            <div class="intro-card">
+                <h2>Welcome 👋</h2>
+                <p>This is a self-hosted, printable birthday &amp; anniversary planner built with plain
+                HTML, CSS and vanilla JavaScript — no frameworks, no build step.</p>
+                <ul>
+                    <li><b>Choose a theme</b> below to open a printable calendar.</li>
+                    <li><b>Manage Data</b> lets you add / edit dates, quotes and month photos.</li>
+                    <li>Your changes are saved in the browser and applied to <b>every theme</b> automatically.</li>
+                </ul>
+            </div>
+            <div class="theme-grid">
+                <article class="theme-card t1">
+                    <h3>🗓️ Theme 1 — Classic Planner</h3>
+                    <p class="desc">One full month per A4-landscape page with a large day grid, a per-month
+                    notes sidebar, flower stickers, a polaroid photo and a random quote.</p>
+                    <a class="open-btn" href="theme1/index.html">Open Theme 1 →</a>
+                </article>
+                <article class="theme-card t2">
+                    <h3>📇 Theme 2 — Desk Calendar</h3>
+                    <p class="desc">A desk-calendar look: gradient month cards with a photo, an elegant month
+                    name &amp; year, a celebrations date-listing and two months per A4-portrait page.</p>
+                    <a class="open-btn" href="theme2/index.html">Open Theme 2 →</a>
+                </article>
+            </div>
+        </section>
+
+        <!-- ============ MANAGE DATA PANEL ============ -->
+        <section class="panel" id="panel-manage">
+            <!-- Save / Reset -->
+            <div class="section-card">
+                <div class="save-bar">
+                    <button class="btn btn-save" id="saveBtn">💾 Save changes</button>
+                    <button class="btn btn-reset" id="resetBtn">♻️ Reset to defaults</button>
+                    <span class="status" id="status"></span>
+                </div>
+            </div>
+
+            <!-- Sub-tabs -->
+            <nav class="subtabs">
+                <button class="subtab-btn active" data-subtab="dates">📅 Dates</button>
+                <button class="subtab-btn" data-subtab="quotes">💬 Quotes</button>
+                <button class="subtab-btn" data-subtab="photos">🖼️ Photos</button>
+            </nav>
+
+            <!-- Dates sub-panel -->
+            <div class="subpanel active" id="subpanel-dates">
+            <div class="section-card">
+                <h2>📅 Dates (Birthdays &amp; Anniversaries)</h2>
+                <p class="hint">Add a new date or edit an existing one. The date's year is used for milestone labels.</p>
+                <div class="form-row" id="evForm">
+                    <div class="field grow">
+                        <label for="evName">Name</label>
+                        <input type="text" id="evName" placeholder="Enter name">
+                    </div>
+                    <div class="field">
+                        <label for="evOccasion">Occasion</label>
+                        <input type="text" id="evOccasion" list="occasionList" placeholder="Select Occasion">
+                        <datalist id="occasionList">
+                            <option value="Birthday"></option>
+                            <option value="Anniversary"></option>
+                            <option value="Engagement Anniversary"></option>
+                            <option value="Death Anniversary"></option>
+                            <option value="Other"></option>
+                        </datalist>
+                    </div>
+                    <div class="field">
+                        <label for="evDate">Date</label>
+                        <input type="date" id="evDate">
+                    </div>
+                    <div class="field">
+                        <label for="evColor">Color</label>
+                        <input type="color" id="evColor" value="#D6EEFF">
+                    </div>
+                    <button class="btn btn-add" id="evAddBtn">➕ Add</button>
+                    <button class="btn btn-ghost" id="evCancelBtn" style="display:none">Cancel</button>
+                </div>
+                <table id="evTable"><thead><tr>
+                    <th>Name</th><th>Occasion</th><th>Date</th><th>Color</th><th></th>
+                </tr></thead><tbody></tbody></table>
+            </div>
+            </div>
+
+            <!-- Quotes sub-panel -->
+            <div class="subpanel" id="subpanel-quotes">
+            <div class="section-card">
+                <h2>💬 Quotes</h2>
+                <p class="hint">A random quote is shown on each month.</p>
+                <div class="form-row" id="qForm">
+                    <div class="field">
+                        <label for="qMonth">Month</label>
+                        <select id="qMonth">
+                            <option value="january">January</option>
+                            <option value="february">February</option>
+                            <option value="march">March</option>
+                            <option value="april">April</option>
+                            <option value="may">May</option>
+                            <option value="june">June</option>
+                            <option value="july">July</option>
+                            <option value="august">August</option>
+                            <option value="september">September</option>
+                            <option value="october">October</option>
+                            <option value="november">November</option>
+                            <option value="december">December</option>
+                        </select>
+                    </div>
+                    <div class="field grow">
+                        <label for="qText">Quote</label>
+                        <input type="text" id="qText" placeholder="Every small step moves you closer...">
+                    </div>
+                    <button class="btn btn-add" id="qAddBtn">➕ Add</button>
+                    <button class="btn btn-ghost" id="qCancelBtn" style="display:none">Cancel</button>
+                </div>
+                <table id="qTable"><thead><tr>
+                    <th>Month</th><th>Quote</th><th></th>
+                </tr></thead><tbody></tbody></table>
+            </div>
+            </div>
+
+            <!-- Photos sub-panel -->
+            <div class="subpanel" id="subpanel-photos">
+            <div class="section-card">
+                <h2>🖼️ Month Photos</h2>
+                <p class="hint">Paste an image URL (or local path) for any month. Leave blank for a placeholder.</p>
+                <div class="photos-grid" id="photosGrid"></div>
+            </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="data/events.js"></script>
+    <script src="data/quotes.js"></script>
+    <script src="data/photos.js"></script>
+    <script src="js/manager.js"></script>
+    <script>
+        document.querySelectorAll('.tab-btn').forEach((button) => {
+            button.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach((btn) => btn.classList.remove('active'));
+                document.querySelectorAll('.panel').forEach((panel) => panel.classList.remove('active'));
+                button.classList.add('active');
+                const target = button.dataset.tab;
+                const panel = document.getElementById(`panel-${target}`);
+                if (panel) panel.classList.add('active');
+            });
+        });
+
+        document.querySelectorAll('.subtab-btn').forEach((button) => {
+            button.addEventListener('click', () => {
+                document.querySelectorAll('.subtab-btn').forEach((btn) => btn.classList.remove('active'));
+                document.querySelectorAll('.subpanel').forEach((panel) => panel.classList.remove('active'));
+                button.classList.add('active');
+                const target = button.dataset.subtab;
+                const panel = document.getElementById(`subpanel-${target}`);
+                if (panel) panel.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>
