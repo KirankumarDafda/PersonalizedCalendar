@@ -2,6 +2,10 @@
 
 A self-hosted, printable birthday & anniversary planner built with plain **HTML, CSS, and vanilla JavaScript** — no frameworks, no build step, no external libraries. Events, quotes, and month photos are defined in editable JavaScript data files, and the calendar renders one full-page month at a time, ready to print as a professional A4-landscape planner.
 
+## Live Application
+
+- [Personalized Calendar](https://personalized-calendar.vercel.app/)
+
 ## ✨ Features
 
 - **Data-driven calendar** – events are read from `data/events.js`; add an entry and it appears automatically, no HTML changes required.
